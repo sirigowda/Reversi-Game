@@ -8,7 +8,7 @@ To play the game, the intial state must be specified in the input file.
 
 Start the game by running main.py. 
 
-This in turn calls Reversi.py, which upon considering all possible moves in a given state, using minimax, predicts the next best move and returns the next state. 
+This in turn calls Reversi.py, which upon considering all possible moves in a given state, predicts the next best move and returns the new state. 
 
 ### SYSTEM REQUIREMENTS
 
