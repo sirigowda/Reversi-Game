@@ -1,7 +1,7 @@
 # Reversi Game
 
-ABOUT THE CODE
-===============
+# ABOUT THE CODE
+
 Reversi game is implemented using MiniMax algorithm optimized with Alpha-Beta pruning. Positional weight evaluation functions are used to determine the next best move. 
 To play the game, the intial state must be specified in the input file.
 Start the game by running main.py. 
