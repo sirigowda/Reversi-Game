@@ -1,23 +1,7 @@
 import copy
-
-utility_values = [[99, -8, 8, 6, 6, 8, -8, 99], [-8, -24, -4, -3, -3, -4, -24, -8], [8, -4, 7, 4, 4, 7, -4, 8],
-                  [6, -3, 4, 0, 0, 4, -3, 6], [6, -3, 4, 0, 0, 4, -3, 6], [8, -4, 7, 4, 4, 7, -4, 8],
-                  [-8, -24, -4, -3, -3, -4, -24, -8], [99, -8, 8, 6, 6, 8, -8, 99]]
-rowColumnNeighbours = [[0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1]]
-rows = 8
-columns = 8
-
-
-class Pawn:
-    row = -1
-    column = -1
-
-    def __init__(self, row, column):
-        self.row = row
-        self.column = column
-
-    def __repr__(self):
-        return '[{},{}]'.format(self.row, self.column)
+import constants
+import properties
+import Pawn
 
 
 class Game:
@@ -26,6 +10,7 @@ class Game:
     moves = ""
     moves_list = []
 
+    # start game
     def __init__(self, intialstate, startplayer, maxdepth):
         self.state = intialstate
         self.maxdepth = maxdepth
@@ -35,27 +20,26 @@ class Game:
         else:
             self.opponent = 'X'
 
-    def addmoves(self, str):
-        self.moves += "\n"
-        self.moves += str
-
+    #evaluates state of board
     def evaluate(self, state_of_board):
         blackWeight = 0
         whiteWeight = 0
         for row in range(0, 8, 1):
             for column in range(0, 8, 1):
                 if state_of_board[row][column] == self.startplayer:
-                    blackWeight += utility_values[row][column]
+                    blackWeight += constants.UTILITY_VALUES[row][column]
                 elif state_of_board[row][column] == self.opponent:
-                    whiteWeight += utility_values[row][column]
+                    whiteWeight += constants.UTILITY_VALUES[row][column]
         return blackWeight - whiteWeight
 
+    # check if row, column within range
     def outofrange(self, row, column):
         rowColumnRange = range(0, 8)
         if row in rowColumnRange and column in rowColumnRange:
             return 1
         return -1
 
+    # returns result obtained from executing action on current state
     def result(self, state, action, current):
         resultstate = copy.deepcopy(state)
 
@@ -69,7 +53,7 @@ class Game:
 
         resultstate[neighbourRow][neighbourColumn] = current
 
-        for rowDirection, columnDirection in rowColumnNeighbours:
+        for rowDirection, columnDirection in constants.ROW_COL_NEIGHBOURS:
             # check in the direction of every neighbouring node
             neighbourRow = action.row
             neighbourColumn = action.column
@@ -103,6 +87,7 @@ class Game:
 
         return resultstate
 
+    # returns all possible valid actions on current state
     # state does not get altered by this method
     def getPossibleActions(self, state, currentplayer):
 
@@ -114,7 +99,7 @@ class Game:
         for row in range(0, 8, 1):
             for column in range(0, 8, 1):
                 if state[row][column] == currentplayer:
-                    for rowDirection, columnDirection in rowColumnNeighbours:
+                    for rowDirection, columnDirection in constants.ROW_COL_NEIGHBOURS:
                         neighbourRow = copy.copy(row)
                         neighbourColumn = copy.copy(column)
                         neighbourRow += rowDirection
@@ -137,7 +122,7 @@ class Game:
                                 if action.row == neighbourRow and action.column == neighbourColumn:
                                     duplicate = True
                             if duplicate != True:
-                                actions.append(Pawn(neighbourRow, neighbourColumn))
+                                actions.append(Pawn.Pawn(neighbourRow, neighbourColumn))
                                 # if it is on board all pawns encountered till now must be changed
         return actions
 
@@ -241,7 +226,7 @@ class Game:
         v = float('inf')
         terminal_node = self.moves_made[-1]
 
-        # When depth==maxdepth
+        # When depth == maxdepth
         if validActions == -1:
             self.print_move(self.node(terminal_node), min_depth, str(self.evaluate(min_state)), min_alpha,
                             min_beta)
@@ -303,8 +288,8 @@ class Game:
         return v
 
     def alpha_beta_search_next_move(self, state, max_alpha, max_beta, currentplayer):
-        # Initialze start states
 
+        # Initialze start states
         depth = 0
         if currentplayer == 'X':
             min_opponent_player = 'O'
@@ -361,10 +346,6 @@ class Game:
                     if nextmove.column > action.column:
                         nextmove = action
 
-            # if (v >= max_beta):
-            #     self.print_move(self.node(self.moves_made[-1]), depth, v, max_alpha, max_beta)
-            #     return
-
             max_alpha = max(max_alpha, v)
             self.print_move(self.node(self.moves_made[-1]), depth, v, max_alpha, max_beta)
 
@@ -384,6 +365,10 @@ class Game:
             alpha) + "," + self.replace_inf_string(beta)
         self.moves_list.append(printmove)
 
+    def add_moves(self, str):
+        self.moves += "\n"
+        self.moves += str
+
     def replace_inf_string(self, val):
         if val == float('-inf'):
             return "-Infinity"
@@ -392,17 +377,17 @@ class Game:
         else:
             return str(val)
 
+
 def main():
     # Read input
-    rawinput = open('C:/aitest/input.txt', 'r')
+    rawinput = open(properties.INPUT_FILE_PATH, 'r')
     lines = rawinput.read().splitlines()
     currentplayer = lines[0]
-    # depth = int(lines[1])
     maxdepth = int(lines[1])
 
     # Initialize state
     state = []
-    for counter in range(2, rows + 2, 1):
+    for counter in range(2, constants.ROWS + 2, 1):
         state.append(list(lines[counter]))
 
     # Start game
@@ -413,18 +398,18 @@ def main():
     pawn = game.alpha_beta_search_next_move(state, alpha, beta, currentplayer)
 
     # Print Output
-    f = open('output.txt', 'w')
+    f = open(properties.OUTPUT_FILE_PATH, 'w')
     moves_pattern = "Node,Depth,Value,Alpha,Beta"
     if pawn == None:
         for ele in game.moves_list:
-            game.addmoves(ele)
+            game.add_moves(ele)
         print  game.output_results(state), moves_pattern, game.moves
         print >> f, game.output_results(state), moves_pattern, game.moves
     else:
         resultant_state = game.result(state, pawn, currentplayer)
         game.output_results(resultant_state)
         for ele in game.moves_list:
-            game.addmoves(ele)
+            game.add_moves(ele)
         print game.output_results(resultant_state), moves_pattern, game.moves
         print >> f, game.output_results(resultant_state), moves_pattern, game.moves
 
