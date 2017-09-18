@@ -13,6 +13,7 @@ This in turn calls Reversi.py, which upon considering all possible moves in a gi
 # SYSTEM REQUIREMENTS
 
 Operating System : Windows / Mac OS X
+
 Programming Language: Python 2.7
 
 # FILE DESCRIPTIONS
